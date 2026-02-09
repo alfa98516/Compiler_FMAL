@@ -22,9 +22,8 @@ class LLexer:
         curr = ""
         lexeme = ""
         while 1:
-            if self.curr_char:
+            if self.curr_char != "":
                 curr = self.curr_char
-                print("assignment of curr")
                 self.curr_char = ""
             else:
                 curr = sys.stdin.read(1)
@@ -62,16 +61,15 @@ class LLexer:
                 
                 if curr_token.lexeme:
                     return curr_token
-            
             if curr == " " or curr == self.ASSIGN or curr == self.SEMICOL or curr == self.PLUS or curr == self.MINUS or curr == self.MULT or curr == self.LPAREN or curr == self.RPAREN:
-            
-                self.curr_char = curr if curr != " " else ""
-                
+                self.curr_char = curr.strip() # was first a bit a ternary to check if curr was a space character but that doesnt check if curr is any other white space character
+                # striping turns curr into an empty string if its a white space character
+                if not lexeme:
+                    continue
+
                 curr_token.lexeme = lexeme.strip()
                 self._assign_code(curr_token)
-                
                 return curr_token
-
             lexeme += curr
     
     def _assign_code(self, token):
