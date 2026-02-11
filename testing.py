@@ -1,8 +1,7 @@
-import re
 
-pattern = re.compile('[A-Z]+')
-test = "HELLO"
+a = []
 
-testmatch = pattern.match(test)
-
-print(testmatch.group() == test)
+try:
+    a.pop()
+except KeyError and IndexError:
+    pass
