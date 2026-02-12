@@ -1,5 +1,5 @@
 import sys
-from LLexer import LLexer
+from llexer import LLexer
 class SInterpreter:
     def __init__(self):
         self.stack = []
@@ -7,7 +7,10 @@ class SInterpreter:
  
     def cycle(self):
         for line in sys.stdin:
-            argv = line.split() 
+            argv = line.split()
+            if not argv:
+                quit()
+
             arg1 = argv[0]
             arg2 = ""
 
@@ -33,17 +36,18 @@ class SInterpreter:
             
             if arg1 == "MULT":
                 self.mult()
-            
+                continue
+
             if arg1 == "ASSIGN":
                 self.assign()
-            
+                continue
 
             if arg1 == "PRINT":
                 self.stackPrint()
-            
-            if line.strip() == "Syntax error":
-                self.error()
-            
+                continue
+            else:
+                self.error(arg1)
+
     def add(self):
         
         a = self.stack.pop()
@@ -65,7 +69,8 @@ class SInterpreter:
             self.push(int(a)+int(b))
 
         except ValueError:
-            self.error()
+
+            self.error("ADD")
 
     def sub(self):
         a = self.stack.pop()
@@ -87,28 +92,27 @@ class SInterpreter:
         try:
             self.push(int(a)-int(b))
         except ValueError:
-            self.error()
+            self.error("SUB")
 
     def stackPrint(self):
         try:
             a = self.stack.pop()
             val = self.vars[a]
         except IndexError and KeyError:
-            self.error()
-        print(a)
+            self.error("PRINT")
+        print(val)
 
     def push(self, val):
         try:
-            val = int(a)
+            val = int(val)
         except ValueError:
-            pass
+            self.vars[val] = 0
 
         self.stack.append(val)
         
     def assign(self):
-        var = self.stack.pop()
         val = self.stack.pop()
-
+        var = self.stack.pop()
         try:
             val = self.vars[val]
         except KeyError:
@@ -116,23 +120,35 @@ class SInterpreter:
         
         if type(val) == int:
             self.vars[var] = val
-
         else:
-            self.error()
-        
-    
-        
+            self.error("ASSIGN")
 
         
-
     def mult(self):
-        a = self.stack.pop()
+        a = self.stack.pop()       
+        try:
+            a = self.vars[a]
+        
+        except KeyError:
+            pass
+
+        
         b = self.stack.pop()
-        self.push(a * b)
+
+        try:
+            b = self.vars[b]
+        except KeyError:
+            pass
+        
+
+        try:
+            self.push(int(a) * int(b))
+        except ValueError:
+            self.error("MULT")
     
-    def error(self):
-        print("Syntax error")
-        sys.exit(1)
+    def error(self, operator):
+        print(f"Error for operator: {operator}")
+        quit(0)
 
 if __name__ == "__main__":
     interpreter = SInterpreter()

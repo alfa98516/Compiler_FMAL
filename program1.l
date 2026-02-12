@@ -1,5 +1,3 @@
-var = 3 + 4;
-varTwo = var;
+var=45;
 print var;
-end 
-
+end

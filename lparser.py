@@ -1,6 +1,6 @@
 import sys
-from LLexer import LLexer
-from LToken import LToken
+from llexer import LLexer
+from ltoken import LToken
 
 
 # Statements -> Statement ; Statements | end
@@ -12,39 +12,31 @@ from LToken import LToken
 
 class LParser:
     def __init__(self, lexer):
-        self.extra = False
         self.LLexer = lexer
         self.LToken = None
 
-    def parser(self):
+    def parse(self):
         self.next_token()
         self.statements()
         print()
 
     def error(self):
         print("Syntax error")
-        sys.exit(1)
+        quit()
 
     def next_token(self):
-        if self.extra: # If a function calls next token but did not need it.
-            self.extra = False
-            return
-
         token = self.LLexer.get_next_token()
-
         if token.token_code == token.ERROR:
-            print("invalid token")
             self.error()
         self.LToken = token
 
     def statements(self):
- 
+
         if self.LToken.token_code == self.LToken.END:
             return
         
         self.statement()
-        self.next_token()
-        
+
         if (self.LToken.lexeme != self.LLexer.SEMICOL):
             self.error()
 
@@ -53,25 +45,21 @@ class LParser:
     
     def statement(self):
         
-        
-        if self.LToken.token_code == self.LToken.END:
-            self.error()
-
         if self.LToken.token_code == self.LToken.PRINT:
             self.next_token()
             if self.LToken.token_code != self.LToken.ID:
                 self.error()
-
+            
             print(f"PUSH {self.LToken.lexeme}")
             print("PRINT")
-
+            self.next_token()
             return
         
         if self.LToken.token_code == self.LToken.ID:
             print(f"PUSH {self.LToken.lexeme}")
             self.next_token()
 
-            if self.LToken.lexeme != self.LLexer.ASSIGN:
+            if self.LToken.token_code != self.LToken.ASSIGN:
                 self.error()
 
             self.next_token()
@@ -85,18 +73,14 @@ class LParser:
             
     def expression(self):
         self.term()
-        self.next_token()
 
         if self.LToken.token_code == self.LToken.SEMICOL:
-            self.extra = True
             return
 
         elif self.LToken.token_code == self.LToken.PLUS:
             self.next_token()
             self.expression()
             
-            if self.LToken.token_code != self.LToken.SEMICOL:
-                self.error()
 
             print("ADD")
             return
@@ -111,14 +95,13 @@ class LParser:
         self.factor()
         self.next_token()
         if self.LToken.token_code != self.LToken.MULT:
-            self.extra = True
             return
         
         else:
             self.next_token()
             self.term()
             print("MULT")
-
+    
 
     def factor(self):
         if self.LToken.token_code == self.LToken.ID or self.LToken.token_code == self.LToken.INT:  
@@ -132,6 +115,9 @@ class LParser:
             if self.LToken.token_code != self.LToken.RPAREN:
                 self.error()
             return
+
+        else:
+            self.error()
         
 
 
